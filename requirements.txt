@@ -1,0 +1,153 @@
+1. Installing Nmap on Linux
+Before diving into advanced usage, we need to ensure Nmap is properly installed.
+
+Step 1: Update Your System
+Run the following commands to update your Linux distribution:
+
+bash
+Kodu kopyala
+sudo apt update && sudo apt upgrade -y
+Step 2: Install Nmap
+Install Nmap using the package manager for your distribution:
+
+For Debian/Ubuntu-based systems:
+
+bash
+Kodu kopyala
+sudo apt install nmap -y
+For CentOS/Red Hat-based systems:
+
+bash
+Kodu kopyala
+sudo yum install nmap -y
+For Arch-based systems:
+
+bash
+Kodu kopyala
+sudo pacman -S nmap
+Step 3: Verify Installation
+After installation, verify the version:
+
+bash
+Kodu kopyala
+nmap --version
+You should see output like:
+
+less
+Kodu kopyala
+Nmap version 7.x (https://nmap.org)
+2. Basic Nmap Usage
+Here are some commonly used Nmap commands to get started:
+
+Scan a Single Host
+bash
+Kodu kopyala
+nmap 192.168.1.1
+Scan a Range of IPs
+bash
+Kodu kopyala
+nmap 192.168.1.1-100
+Scan for Open Ports
+bash
+Kodu kopyala
+nmap -p 1-65535 192.168.1.1
+Detect Operating System and Services
+bash
+Kodu kopyala
+nmap -O -sV 192.168.1.1
+Save Output to a File
+bash
+Kodu kopyala
+nmap -oN output.txt 192.168.1.1
+3. Writing Custom Scripts with Nmap Scripting Engine (NSE)
+NSE allows you to write scripts in Lua to automate tasks such as vulnerability detection, service discovery, or brute-forcing. Let’s create a custom script step-by-step.
+
+Step 1: Locate the NSE Script Directory
+Nmap scripts are stored in the following directory by default:
+
+bash
+Kodu kopyala
+/usr/share/nmap/scripts/
+Step 2: Create a New Script
+Navigate to the scripts directory and create a new script:
+
+bash
+Kodu kopyala
+cd /usr/share/nmap/scripts/
+sudo nano my_custom_script.nse
+Step 3: Write the Script
+Here’s a simple example script to check if a specific port is open:
+
+lua
+Kodu kopyala
+-- my_custom_script.nse
+
+local nmap = require "nmap"
+local shortport = require "shortport"
+
+-- Define the script description
+description = [[
+This script checks if port 8080 is open on the target host.
+]]
+
+author = "YourName"
+
+-- Define the script action
+portrule = shortport.port_or_service(8080, "http")
+
+action = function(host, port)
+    return "Port 8080 is open!"
+end
+Step 4: Test the Script
+Run your script with Nmap:
+
+bash
+Kodu kopyala
+sudo nmap --script my_custom_script.nse 192.168.1.1
+If the target’s port 8080 is open, you’ll see the custom message.
+
+4. Integrating Nmap with Python
+If you want to automate Nmap scans programmatically, Python is a great choice. We’ll use the python-nmap library.
+
+Step 1: Install python-nmap
+Install the library with pip:
+
+bash
+Kodu kopyala
+pip install python-nmap
+Step 2: Write a Python Script
+Here’s an example Python script to scan a network and display open ports:
+
+python
+Kodu kopyala
+import nmap
+
+def scan_network(target):
+    scanner = nmap.PortScanner()
+    print(f"Scanning {target}...")
+    scanner.scan(target, '1-1024', '-sV')
+
+    for host in scanner.all_hosts():
+        print(f"\nHost: {host} ({scanner[host].hostname()})")
+        print(f"State: {scanner[host].state()}")
+
+        for protocol in scanner[host].all_protocols():
+            print(f"\nProtocol: {protocol}")
+            ports = scanner[host][protocol].keys()
+            for port in sorted(ports):
+                print(f"Port: {port}\tState: {scanner[host][protocol][port]['state']}")
+
+# Example usage
+scan_network('192.168.1.0/24')
+Save this script as nmap_scan.py and run it:
+
+bash
+Kodu kopyala
+python nmap_scan.py
+5. Best Practices and Precautions
+Use Responsibly: Ensure you have permission to scan a network or host before running Nmap.
+Stay Updated: Regularly update Nmap to the latest version to get new features and bug fixes.
+Script Validation: Test custom scripts in a controlled environment before deploying them.
+Conclusion
+
+Nmap is an incredibly versatile tool for network exploration and security auditing. By understanding its basics and leveraging features like NSE and Python integration, you can customize it to suit your specific needs. Experiment with writing your own scripts and automate repetitive tasks to enhance your productivity.
